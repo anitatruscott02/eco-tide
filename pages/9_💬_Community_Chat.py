@@ -498,20 +498,29 @@ LANG_OPTIONS = {"en":"🇬🇧 English","yo":"🇳🇬 Yoruba","ig":"🇳🇬 Ig
 if "app_language" not in st.session_state:
     st.session_state.app_language = "en"
 
+def switch_language(target_lang):
+    if target_lang in LANG_OPTIONS:
+        st.session_state.app_language = target_lang
+        st.session_state.chat_lang = target_lang
+        st.session_state.messages = [
+            {"role": "assistant", "content": KB[target_lang]["greeting"], "time": datetime.now().strftime("%H:%M")}
+        ]
+
 # ── Sidebar Language Selector ─────────────────────────────────────────────────
 with st.sidebar:
     render_theme_switcher()
     st.markdown("---")
     st.markdown("### 🌍 Language / Ede / Asusuu / Harshe")
+    curr_lang = st.session_state.app_language
     sidebar_lang = st.selectbox(
         "Select Language", options=list(LANG_OPTIONS.keys()),
-        index=list(LANG_OPTIONS.keys()).index(st.session_state.app_language),
+        index=list(LANG_OPTIONS.keys()).index(curr_lang),
         format_func=lambda k: LANG_OPTIONS[k],
-        key="chat_sidebar_lang_select",
+        key=f"sidebar_lang_selector_{curr_lang}",
         label_visibility="collapsed"
     )
-    if sidebar_lang != st.session_state.app_language:
-        st.session_state.app_language = sidebar_lang
+    if sidebar_lang != curr_lang:
+        switch_language(sidebar_lang)
         st.rerun()
 
     st.markdown("---")
@@ -525,6 +534,46 @@ with st.sidebar:
 
 lang = st.session_state.app_language
 T = KB.get(lang, KB["en"])
+
+# ── High Contrast Chat Input CSS ──────────────────────────────────────────────
+st.markdown("""
+<style>
+/* Fix chat input text visibility in all modes */
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
+[data-testid="stChatInput"] div[data-baseweb="textarea"],
+[data-testid="stChatInput"] div[data-baseweb="textarea"] > div,
+[data-testid="stChatInput"] div[data-baseweb="input"],
+.stChatFloatingInputContainer,
+.stChatFloatingInputContainer > div {
+    background-color: #131D31 !important;
+    background: #131D31 !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.5) !important;
+    border-radius: 12px !important;
+}
+
+[data-testid="stChatInput"] textarea {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    caret-color: #38BDF8 !important;
+}
+
+[data-testid="stChatInput"] textarea::placeholder {
+    color: rgba(255, 255, 255, 0.65) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+}
+
+[data-testid="stChatInput"] button {
+    background-color: #0284C7 !important;
+    color: #FFFFFF !important;
+    border-radius: 8px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ── Header Banner ─────────────────────────────────────────────────────────────
 _db_badge = (
@@ -562,7 +611,7 @@ for col, (l_key, l_label) in zip(lang_cols, LANG_OPTIONS.items()):
         btn_type = "primary" if is_active else "secondary"
         if st.button(btn_label, key=f"top_lang_btn_{l_key}", use_container_width=True, type=btn_type):
             if st.session_state.app_language != l_key:
-                st.session_state.app_language = l_key
+                switch_language(l_key)
                 st.rerun()
 
 st.markdown("<div style='margin-bottom:16px;'></div>", unsafe_allow_html=True)

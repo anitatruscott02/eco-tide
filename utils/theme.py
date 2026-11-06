@@ -859,14 +859,28 @@ button[data-testid="baseButton-secondary"] *,
     font-size: 0.98rem !important;
     line-height: 1.65 !important;
 }
-[data-testid="stChatInput"] {
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
+[data-testid="stChatInput"] div[data-baseweb="textarea"],
+[data-testid="stChatInput"] div[data-baseweb="textarea"] > div,
+.stChatFloatingInputContainer,
+.stChatFloatingInputContainer > div {
     background: #131D31 !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background-color: #131D31 !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
     border-radius: 14px !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
 }
 [data-testid="stChatInput"] textarea {
+    background: transparent !important;
+    background-color: transparent !important;
     color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    caret-color: #38BDF8 !important;
+}
+[data-testid="stChatInput"] textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
 }
 </style>
 """
