@@ -456,6 +456,7 @@ button[data-testid="baseButton-secondary"] *,
 }
 [data-testid="stChatInput"] textarea {
     color: #0F172A !important;
+    -webkit-text-fill-color: #0F172A !important;
 }
 </style>
 """
@@ -589,30 +590,62 @@ p, span, div, li, label {
 /* Selectbox / Dropdowns */
 [data-baseweb="select"],
 [data-baseweb="select"] > div,
-div[data-baseweb="select"] > div {
+div[data-baseweb="select"] > div,
+section[data-testid="stSidebar"] [data-baseweb="select"],
+section[data-testid="stSidebar"] [data-baseweb="select"] > div,
+section[data-testid="stSidebar"] div[data-baseweb="select"] div {
     background: #131D31 !important;
-    border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+    background-color: #131D31 !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
     border-radius: 10px !important;
     color: #FFFFFF !important;
 }
-[data-baseweb="select"] * {
+[data-baseweb="select"] *,
+section[data-testid="stSidebar"] [data-baseweb="select"] * {
     color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+section[data-testid="stSidebar"] [data-baseweb="select"] svg {
+    fill: #38BDF8 !important;
+    color: #38BDF8 !important;
 }
 [data-baseweb="popover"],
 [data-baseweb="menu"],
 ul[role="listbox"] {
     background: #131D31 !important;
-    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    background-color: #131D31 !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
 }
 li[role="option"] {
     background: #131D31 !important;
+    background-color: #131D31 !important;
     color: #FFFFFF !important;
+}
+li[role="option"] * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
 }
 li[role="option"]:hover,
 li[role="option"][aria-selected="true"] {
-    background: #1E293B !important;
-    color: #38BDF8 !important;
+    background: #0284C7 !important;
+    background-color: #0284C7 !important;
+    color: #FFFFFF !important;
+}
+
+/* Universal High-Contrast Alert Callouts */
+[data-testid="stAlert"] {
+    background-color: #131D31 !important;
+    background: #131D31 !important;
+    border-radius: 12px !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+}
+[data-testid="stAlert"] * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 600 !important;
 }
 
 /* Sliders */

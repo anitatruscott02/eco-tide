@@ -426,14 +426,39 @@ def get_bot_response(user_msg: str, lang: str) -> str:
                 z_name = match_obj.get("name", "")
                 elev = match_obj.get("elevation_m", 5.0)
                 safe_pt, dist, route = EVACUATION_ROUTES.get(z_name, ("Higher ground mainland", "Varies", "Main Highway"))
-                return (
-                    f"📍 **{z_name} LGA** — {lvl_icon} **{match_obj.get('label', 'SAFE').upper()}**\n\n"
-                    f"• **Average Elevation:** {elev:.1f} m\n"
-                    f"• **Current Risk Score:** {score_pct}%\n"
-                    f"• **Current Conditions:** {cur_wl:.2f}m water level | {cur_rain:.1f}mm/hr rain\n"
-                    f"• **Nearest Safe Zone:** {safe_pt} ({dist}) via {route}\n\n"
-                    f"{'⚠️ Evacuate immediately!' if lvl=='red' else ('⚠️ Prepare to evacuate.' if lvl=='amber' else '✅ All monitored communities in this LGA are currently safe.')}"
-                )
+                if lang == "yo":
+                    return (
+                        f"📍 **Agbègbè {z_name}** — {lvl_icon} **{match_obj.get('label', 'AABO').upper()}**\n\n"
+                        f"• **Ipele Ewu:** **{score_pct}%**\n"
+                        f"• **Ijinna si Omi:** {elev:.1f} m\n"
+                        f"• **Agbègbè Aabo to Sunmọ:** {safe_pt} ({dist}) nípasẹ̀ {route}\n\n"
+                        f"{'🚨 Sa lọ lẹsẹkẹsẹ!' if lvl=='red' else ('⚠️ Mura lati sa.' if lvl=='amber' else '✅ Gbogbo agbègbè ti a n ṣe abojuto ni LGA yii wa ni alaafia.')}"
+                    )
+                elif lang == "ig":
+                    return (
+                        f"📍 **Mpaghara {z_name}** — {lvl_icon} **{match_obj.get('label', 'NCHEBE').upper()}**\n\n"
+                        f"• **Ọkwa Ihe Ize Ndụ:** **{score_pct}%**\n"
+                        f"• **Elu Ala:** {elev:.1f} m\n"
+                        f"• **Ebe Nchedo Kasị Nso:** {safe_pt} ({dist}) site na {route}\n\n"
+                        f"{'🚨 Pụọ ozugbo!' if lvl=='red' else ('⚠️ Dị njikere ịpu!' if lvl=='amber' else '✅ Mpaghara a dị nchebe ugbu a.')}"
+                    )
+                elif lang == "ha":
+                    return (
+                        f"📍 **Yankin {z_name}** — {lvl_icon} **{match_obj.get('label', 'LAFIYA').upper()}**\n\n"
+                        f"• **Matsayin Haɗari:** **{score_pct}%**\n"
+                        f"• **Tsayin Wuri:** {elev:.1f} m\n"
+                        f"• **Wurin Tsaro Mafi Kusa:** {safe_pt} ({dist}) ta {route}\n\n"
+                        f"{'🚨 Fita nan take!' if lvl=='red' else ('⚠️ Shirya don ficewa.' if lvl=='amber' else '✅ Wannan yankin yana lafiya a halin yanzu.')}"
+                    )
+                else:
+                    return (
+                        f"📍 **{z_name} LGA** — {lvl_icon} **{match_obj.get('label', 'SAFE').upper()}**\n\n"
+                        f"• **Average Elevation:** {elev:.1f} m\n"
+                        f"• **Current Risk Score:** {score_pct}%\n"
+                        f"• **Current Conditions:** {cur_wl:.2f}m water level | {cur_rain:.1f}mm/hr rain\n"
+                        f"• **Nearest Safe Zone:** {safe_pt} ({dist}) via {route}\n\n"
+                        f"{'⚠️ Evacuate immediately!' if lvl=='red' else ('⚠️ Prepare to evacuate.' if lvl=='amber' else '✅ All monitored communities in this LGA are currently safe.')}"
+                    )
     except Exception as e:
         pass
 
@@ -512,6 +537,28 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🌍 Language / Ede / Asusuu / Harshe")
     curr_lang = st.session_state.app_language
+
+    # High-contrast 2x2 language buttons for instant selection
+    sb_col1, sb_col2 = st.columns(2)
+    with sb_col1:
+        if st.button("🇬🇧 English", key="sb_btn_en", use_container_width=True, type="primary" if curr_lang=="en" else "secondary"):
+            if curr_lang != "en":
+                switch_language("en")
+                st.rerun()
+        if st.button("🇳🇬 Igbo", key="sb_btn_ig", use_container_width=True, type="primary" if curr_lang=="ig" else "secondary"):
+            if curr_lang != "ig":
+                switch_language("ig")
+                st.rerun()
+    with sb_col2:
+        if st.button("🇳🇬 Yoruba", key="sb_btn_yo", use_container_width=True, type="primary" if curr_lang=="yo" else "secondary"):
+            if curr_lang != "yo":
+                switch_language("yo")
+                st.rerun()
+        if st.button("🇳🇬 Hausa", key="sb_btn_ha", use_container_width=True, type="primary" if curr_lang=="ha" else "secondary"):
+            if curr_lang != "ha":
+                switch_language("ha")
+                st.rerun()
+
     sidebar_lang = st.selectbox(
         "Select Language", options=list(LANG_OPTIONS.keys()),
         index=list(LANG_OPTIONS.keys()).index(curr_lang),
@@ -524,13 +571,28 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    # Live risk summary sidebar card
+    # Live risk summary sidebar card - 100% High Contrast Custom Card
     if red_zones:
-        st.error(f"🔴 **Active Alert**\n\n{', '.join(red_zones[:2])}")
+        st.markdown(f'''
+        <div style="background:rgba(239, 68, 68, 0.22); border:1.5px solid #EF4444; border-radius:12px; padding:12px 14px; margin-top:8px;">
+            <div style="color:#EF4444; font-weight:800; font-size:0.92rem; margin-bottom:4px;">🚨 Active Flood Alert</div>
+            <div style="color:#FFFFFF; font-size:0.86rem; font-weight:600;">{', '.join(red_zones[:2])}</div>
+        </div>
+        ''', unsafe_allow_html=True)
     elif amber_zones:
-        st.warning(f"🟡 **Caution**\n\n{', '.join(amber_zones[:2])}")
+        st.markdown(f'''
+        <div style="background:rgba(245, 158, 11, 0.22); border:1.5px solid #F59E0B; border-radius:12px; padding:12px 14px; margin-top:8px;">
+            <div style="color:#F59E0B; font-weight:800; font-size:0.92rem; margin-bottom:4px;">⚠️ Elevated Watch</div>
+            <div style="color:#FFFFFF; font-size:0.86rem; font-weight:600;">{', '.join(amber_zones[:2])}</div>
+        </div>
+        ''', unsafe_allow_html=True)
     else:
-        st.success("🟢 All zones safe")
+        st.markdown('''
+        <div style="background:rgba(16, 185, 129, 0.22); border:1.5px solid #10B981; border-radius:12px; padding:12px 14px; margin-top:8px;">
+            <div style="color:#34D399; font-weight:800; font-size:0.95rem; margin-bottom:4px;">🟢 All Zones Safe</div>
+            <div style="color:#FFFFFF; font-size:0.86rem; font-weight:600;">Normal tidal conditions in Lagos</div>
+        </div>
+        ''', unsafe_allow_html=True)
 
 lang = st.session_state.app_language
 T = KB.get(lang, KB["en"])
@@ -538,6 +600,50 @@ T = KB.get(lang, KB["en"])
 # ── High Contrast Chat Input CSS ──────────────────────────────────────────────
 st.markdown("""
 <style>
+/* Sidebar Selectbox & Inputs High Contrast */
+section[data-testid="stSidebar"] [data-baseweb="select"],
+section[data-testid="stSidebar"] [data-baseweb="select"] > div,
+section[data-testid="stSidebar"] div[data-baseweb="select"] div,
+[data-testid="stSidebar"] div[data-baseweb="select"] * {
+    background-color: #131D31 !important;
+    background: #131D31 !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+section[data-testid="stSidebar"] [data-baseweb="select"] > div {
+    border: 1.5px solid rgba(56, 189, 248, 0.6) !important;
+    border-radius: 10px !important;
+}
+
+section[data-testid="stSidebar"] [data-baseweb="select"] svg {
+    fill: #38BDF8 !important;
+    color: #38BDF8 !important;
+}
+
+/* BaseWeb Dropdown Options */
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] > div,
+ul[role="listbox"],
+li[role="option"] {
+    background-color: #131D31 !important;
+    background: #131D31 !important;
+    color: #FFFFFF !important;
+}
+
+li[role="option"] * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+li[role="option"]:hover,
+li[role="option"][aria-selected="true"] {
+    background-color: #0284C7 !important;
+    background: #0284C7 !important;
+    color: #FFFFFF !important;
+}
+
 /* Fix chat input text visibility in all modes */
 [data-testid="stChatInput"],
 [data-testid="stChatInput"] > div,
