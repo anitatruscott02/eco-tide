@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Eti-Osa",
+    "lat": 6.4294,
+    "lon": 3.4584,
+    "old_elevation_m": 2.0,
+    "satellite_elevation_m": 6.0,
+    "difference_m": 4.0
+  },
+  {
+    "name": "Lagos Island",
+    "lat": 6.4541,
+    "lon": 3.3947,
+    "old_elevation_m": 3.0,
+    "satellite_elevation_m": 8.0,
+    "difference_m": 5.0
+  },
+  {
+    "name": "Apapa",
+    "lat": 6.4488,
+    "lon": 3.3592,
+    "old_elevation_m": 3.0,
+    "satellite_elevation_m": 6.0,
+    "difference_m": 3.0
+  },
+  {
+    "name": "Ajeromi-Ifelodun",
+    "lat": 6.4476,
+    "lon": 3.3313,
+    "old_elevation_m": 3.0,
+    "satellite_elevation_m": 6.0,
+    "difference_m": 3.0
+  },
+  {
+    "name": "Amuwo-Odofin",
+    "lat": 6.4676,
+    "lon": 3.2945,
+    "old_elevation_m": 4.0,
+    "satellite_elevation_m": 5.0,
+    "difference_m": 1.0
+  },
+  {
+    "name": "Badagry",
+    "lat": 6.4183,
+    "lon": 2.8814,
+    "old_elevation_m": 5.0,
+    "satellite_elevation_m": 4.0,
+    "difference_m": -1.0
+  },
+  {
+    "name": "Ojo",
+    "lat": 6.4676,
+    "lon": 3.1823,
+    "old_elevation_m": 5.0,
+    "satellite_elevation_m": 7.0,
+    "difference_m": 2.0
+  },
+  {
+    "name": "Lagos Mainland",
+    "lat": 6.5052,
+    "lon": 3.3633,
+    "old_elevation_m": 5.0,
+    "satellite_elevation_m": 7.0,
+    "difference_m": 2.0
+  },
+  {
+    "name": "Surulere",
+    "lat": 6.5008,
+    "lon": 3.3485,
+    "old_elevation_m": 8.0,
+    "satellite_elevation_m": 7.0,
+    "difference_m": -1.0
+  },
+  {
+    "name": "Ibeju-Lekki",
+    "lat": 6.4964,
+    "lon": 3.7571,
+    "old_elevation_m": 5.0,
+    "satellite_elevation_m": 1.0,
+    "difference_m": -4.0
+  },
+  {
+    "name": "Kosofe",
+    "lat": 6.5966,
+    "lon": 3.3896,
+    "old_elevation_m": 15.0,
+    "satellite_elevation_m": 10.0,
+    "difference_m": -5.0
+  },
+  {
+    "name": "Ikorodu",
+    "lat": 6.6194,
+    "lon": 3.5105,
+    "old_elevation_m": 10.0,
+    "satellite_elevation_m": 23.0,
+    "difference_m": 13.0
+  },
+  {
+    "name": "Epe",
+    "lat": 6.5854,
+    "lon": 3.9792,
+    "old_elevation_m": 10.0,
+    "satellite_elevation_m": 24.0,
+    "difference_m": 14.0
+  },
+  {
+    "name": "Shomolu",
+    "lat": 6.552,
+    "lon": 3.371,
+    "old_elevation_m": 15.0,
+    "satellite_elevation_m": 5.0,
+    "difference_m": -10.0
+  },
+  {
+    "name": "Mushin",
+    "lat": 6.5381,
+    "lon": 3.3534,
+    "old_elevation_m": 15.0,
+    "satellite_elevation_m": 23.0,
+    "difference_m": 8.0
+  },
+  {
+    "name": "Oshodi-Isolo",
+    "lat": 6.5353,
+    "lon": 3.3214,
+    "old_elevation_m": 15.0,
+    "satellite_elevation_m": 3.0,
+    "difference_m": -12.0
+  },
+  {
+    "name": "Ikeja",
+    "lat": 6.6018,
+    "lon": 3.3515,
+    "old_elevation_m": 40.0,
+    "satellite_elevation_m": 32.0,
+    "difference_m": -8.0
+  },
+  {
+    "name": "Agege",
+    "lat": 6.6199,
+    "lon": 3.329,
+    "old_elevation_m": 45.0,
+    "satellite_elevation_m": 43.0,
+    "difference_m": -2.0
+  },
+  {
+    "name": "Ifako-Ijaiye",
+    "lat": 6.6477,
+    "lon": 3.3036,
+    "old_elevation_m": 50.0,
+    "satellite_elevation_m": 48.0,
+    "difference_m": -2.0
+  },
+  {
+    "name": "Alimosho",
+    "lat": 6.6105,
+    "lon": 3.2606,
+    "old_elevation_m": 35.0,
+    "satellite_elevation_m": 38.0,
+    "difference_m": 3.0
+  }
+]

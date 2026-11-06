@@ -1,0 +1,30 @@
+[
+  {
+    "id": 2,
+    "lga": "Lekki Phase 1",
+    "reporter": "Tunde O. (Verification)",
+    "severity": "Medium",
+    "water_cm": "18 cm",
+    "msg": "Street runoff draining slowly near Admiralty Way.",
+    "status": "Community Broadcasted",
+    "lat": 6.4474,
+    "lon": 3.4723,
+    "accuracy_m": null,
+    "created_at": "2026-11-04T08:46:25.591210+00:00",
+    "time": "Just now"
+  },
+  {
+    "id": 1,
+    "lga": "Eti-Osa",
+    "reporter": "Automated Verification Agent",
+    "severity": "Low",
+    "water_cm": "5 cm",
+    "msg": "System health verification check.",
+    "status": "Verified",
+    "lat": null,
+    "lon": null,
+    "accuracy_m": null,
+    "created_at": "2026-11-04T08:42:07.295599+00:00",
+    "time": "Just now"
+  }
+]
