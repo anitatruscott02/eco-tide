@@ -268,47 +268,65 @@ hover_text = [
 
 fig_map = go.Figure()
 
+# Dynamic trace resolution for Plotly 5 & 6
+DensityTrace = getattr(go, "Densitymapbox", getattr(go, "Densitymap", None))
+ScatterTrace = getattr(go, "Scattermapbox", getattr(go, "Scattermap", None))
+use_maplibre = not hasattr(go, "Densitymapbox") and hasattr(go, "Densitymap")
+
 # ── Layer 1: Density heat map (soft glow underneath) ─────────────────────────
-fig_map.add_trace(go.Densitymapbox(
-    lat=lats, lon=lons, z=scores,
-    radius=45,
-    colorscale=[
-        [0.0, "rgba(0,80,255,0)"],
-        [0.3, "rgba(0,200,200,0.3)"],
-        [0.6, "rgba(255,200,0,0.5)"],
-        [0.8, "rgba(255,80,0,0.65)"],
-        [1.0, "rgba(255,23,68,0.80)"],
-    ],
-    showscale=False,
-    below="traces",
-    name="Risk Heat",
-    hoverinfo="skip",
-))
+if DensityTrace is not None:
+    try:
+        fig_map.add_trace(DensityTrace(
+            lat=lats, lon=lons, z=scores,
+            radius=45,
+            colorscale=[
+                [0.0, "rgba(0,80,255,0)"],
+                [0.3, "rgba(0,200,200,0.3)"],
+                [0.6, "rgba(255,200,0,0.5)"],
+                [0.8, "rgba(255,80,0,0.65)"],
+                [1.0, "rgba(255,23,68,0.80)"],
+            ],
+            showscale=False,
+            below="traces",
+            name="Risk Heat",
+            hoverinfo="skip",
+        ))
+    except Exception:
+        pass
 
 # ── Layer 2: Bubble scatter markers ──────────────────────────────────────────
-fig_map.add_trace(go.Scattermapbox(
-    lat=lats, lon=lons,
-    mode="markers+text",
-    marker=dict(
-        size=sizes,
-        color=colors,
-        opacity=0.88,
-        sizemode="diameter",
-    ),
-    text=names,
-    textposition="top center",
-    textfont=dict(color="white", size=9),
-    hovertext=hover_text,
-    hoverinfo="text",
-    name="LGA Zones",
-))
+if ScatterTrace is not None:
+    try:
+        fig_map.add_trace(ScatterTrace(
+            lat=lats, lon=lons,
+            mode="markers+text",
+            marker=dict(
+                size=sizes,
+                color=colors,
+                opacity=0.88,
+                sizemode="diameter",
+            ),
+            text=names,
+            textposition="top center",
+            textfont=dict(color="white", size=9),
+            hovertext=hover_text,
+            hoverinfo="text",
+            name="LGA Zones",
+        ))
+    except Exception:
+        pass
+
+dash_geo_config = dict(
+    style="open-street-map",
+    center=dict(lat=LAGOS_CENTER["lat"], lon=LAGOS_CENTER["lon"]),
+    zoom=10.5,
+)
+if use_maplibre:
+    fig_map.update_layout(map=dash_geo_config)
+else:
+    fig_map.update_layout(mapbox=dash_geo_config)
 
 fig_map.update_layout(
-    mapbox=dict(
-        style="open-street-map",   # ← 100% free, built into Plotly, NO token needed
-        center=dict(lat=LAGOS_CENTER["lat"], lon=LAGOS_CENTER["lon"]),
-        zoom=10.5,
-    ),
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
     margin=dict(l=0, r=0, t=0, b=0),

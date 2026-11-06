@@ -130,39 +130,56 @@ with tab_map:
 
     fig_riskmap = go.Figure()
 
-    fig_riskmap.add_trace(go.Densitymapbox(
-        lat=lats, lon=lons, z=scores,
-        radius=40,
-        colorscale=[
-            [0.0, "rgba(0,200,83,0)"],
-            [0.4, "rgba(255,214,0,0.4)"],
-            [0.7, "rgba(255,100,0,0.55)"],
-            [1.0, "rgba(255,23,68,0.75)"],
-        ],
-        showscale=False, below="traces",
-        name="Risk Heat", hoverinfo="skip",
-    ))
+    DensityTrace = getattr(go, "Densitymapbox", getattr(go, "Densitymap", None))
+    ScatterTrace = getattr(go, "Scattermapbox", getattr(go, "Scattermap", None))
+    use_maplibre = not hasattr(go, "Densitymapbox") and hasattr(go, "Densitymap")
 
-    fig_riskmap.add_trace(go.Scattermapbox(
-        lat=lats, lon=lons,
-        mode="markers+text",
-        marker=dict(size=sizes, color=colors_map, opacity=0.9, sizemode="diameter"),
-        text=names,
-        textposition="top center",
-        textfont=dict(color="white", size=8),
-        hovertext=hover_text,
-        hoverinfo="text",
-        name="Zones",
-    ))
+    if DensityTrace is not None:
+        try:
+            fig_riskmap.add_trace(DensityTrace(
+                lat=lats, lon=lons, z=scores,
+                radius=40,
+                colorscale=[
+                    [0.0, "rgba(0,200,83,0)"],
+                    [0.4, "rgba(255,214,0,0.4)"],
+                    [0.7, "rgba(255,100,0,0.55)"],
+                    [1.0, "rgba(255,23,68,0.75)"],
+                ],
+                showscale=False, below="traces",
+                name="Risk Heat", hoverinfo="skip",
+            ))
+        except Exception:
+            pass
+
+    if ScatterTrace is not None:
+        try:
+            fig_riskmap.add_trace(ScatterTrace(
+                lat=lats, lon=lons,
+                mode="markers+text",
+                marker=dict(size=sizes, color=colors_map, opacity=0.9, sizemode="diameter"),
+                text=names,
+                textposition="top center",
+                textfont=dict(color="white", size=8),
+                hovertext=hover_text,
+                hoverinfo="text",
+                name="Zones",
+            ))
+        except Exception:
+            pass
 
     current_theme = st.session_state.get("theme", "dark")
     mapbox_style = "open-street-map"
+    geo_config = dict(
+        style=mapbox_style,
+        center=dict(lat=LAGOS_CENTER["lat"], lon=LAGOS_CENTER["lon"]),
+        zoom=10.5,
+    )
+    if use_maplibre:
+        fig_riskmap.update_layout(map=geo_config)
+    else:
+        fig_riskmap.update_layout(mapbox=geo_config)
+
     fig_riskmap.update_layout(
-        mapbox=dict(
-            style=mapbox_style,
-            center=dict(lat=LAGOS_CENTER["lat"], lon=LAGOS_CENTER["lon"]),
-            zoom=10.5,
-        ),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=0, r=0, t=0, b=0),
