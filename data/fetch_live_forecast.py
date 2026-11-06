@@ -134,6 +134,7 @@ def main():
     
     print(f"   ✅ Saved live forecast dataset: {len(merged_df)} records")
     print("=" * 70)
+    return merged_df
 
 if __name__ == "__main__":
     main()

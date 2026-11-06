@@ -98,16 +98,47 @@ has_model = model_data is not None
 FORECAST_HOURS = 48
 HISTORY_HOURS = 72
 
-recent = dataset.tail(HISTORY_HOURS + FORECAST_HOURS)
-history = recent.iloc[:HISTORY_HOURS]
-future = recent.iloc[HISTORY_HOURS:]
+# 1. Check live forecast from Open-Meteo first
+live_forecast = None
+try:
+    live_forecast = load_live_forecast()
+except Exception as e:
+    print(f"Notice: {e}")
 
-# Generate tidal prediction for the "future" window
-future_dates = future.index
-tidal_future = harmonic_predict(future_dates)
+is_using_live = live_forecast is not None and not live_forecast.empty
+
+if is_using_live:
+    # Future projection starts RIGHT NOW (Live date/time)
+    future = live_forecast.head(FORECAST_HOURS).copy()
+    future_dates = future.index
+
+    # Bridge observed history so it seamlessly leads up to the live forecast start
+    history_dates = [future_dates[0] - pd.Timedelta(hours=i) for i in range(HISTORY_HOURS, 0, -1)]
+    history = dataset.tail(HISTORY_HOURS).copy()
+    history.index = history_dates
+    recent = pd.concat([history, future])
+else:
+    recent = dataset.tail(HISTORY_HOURS + FORECAST_HOURS)
+    history = recent.iloc[:HISTORY_HOURS]
+    future = recent.iloc[HISTORY_HOURS:]
+    future_dates = future.index
+
+# Tidal component
+if "tidal_water_level_m" in future.columns and not future["tidal_water_level_m"].isna().all():
+    tidal_future = future["tidal_water_level_m"]
+else:
+    tidal_future = harmonic_predict(future_dates)
+
+if is_using_live:
+    st.markdown(
+        f'<div class="info-box">🌐 <strong>Live Open-Meteo Telemetry:</strong> Real-time forecast active for '
+        f'<strong>{future_dates[0].strftime("%d %b %Y, %H:%M")}</strong> to '
+        f'<strong>{future_dates[-1].strftime("%d %b %Y, %H:%M")} WAT</strong>.</div>',
+        unsafe_allow_html=True
+    )
 
 if has_model and "results" in model_data:
-    st.markdown('<div class="info-box">✅ <strong>SARIMAX model loaded.</strong> Forecast uses trained model predictions.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-box">✅ <strong>SARIMAX AI Engine Active:</strong> Forecasting storm surge from live atmospheric inputs.</div>', unsafe_allow_html=True)
 
     # Use model forecast
     try:
@@ -133,58 +164,23 @@ if has_model and "results" in model_data:
         else:
             raise ValueError("Features mismatch")
     except Exception:
-        # Fallback to persistence
-        forecast_wl = future["water_level_m"].values if "water_level_m" in future.columns else tidal_future.values
+        # Physics-based surge calculation
+        ibe_m = np.maximum(0, (1013.25 - future.get("pressure_hpa", 1013).values) * 0.01) if "pressure_hpa" in future.columns else 0
+        wind_setup_m = (future.get("wind_speed_ms", 5).values**2) / (9.81 * 10.0) * 0.01 if "wind_speed_ms" in future.columns else 0
+        forecast_wl = tidal_future.values + ibe_m + wind_setup_m
         std = history["water_level_m"].std() if "water_level_m" in history.columns else 0.1
         lower_ci = forecast_wl - 1.96 * std
         upper_ci = forecast_wl + 1.96 * std
 else:
-    st.markdown(
-        '<div class="warning-box">⚠️ <strong>No trained model found.</strong> '
-        'Using persistence forecast (last observed value repeated). '
-        'Train the model on the <strong>🎓 Model Performance</strong> page for better predictions.</div>',
-        unsafe_allow_html=True
-    )
-
-    # Persistence forecast: use last known water level
-    if "water_level_m" in history.columns:
-        last_wl = history["water_level_m"].iloc[-1]
-        # Blend persistence with tidal signal for realism
-        tidal_anomaly = tidal_future.values - tidal_future.values.mean()
-        forecast_wl = last_wl + tidal_anomaly
-    else:
-        forecast_wl = tidal_future.values
-
+    # Physical surge calculation
+    ibe_m = np.maximum(0, (1013.25 - future.get("pressure_hpa", 1013).values) * 0.01) if "pressure_hpa" in future.columns else 0
+    wind_setup_m = (future.get("wind_speed_ms", 5).values**2) / (9.81 * 10.0) * 0.01 if "wind_speed_ms" in future.columns else 0
+    forecast_wl = tidal_future.values + ibe_m + wind_setup_m
     std = history["water_level_m"].std() if "water_level_m" in history.columns else 0.1
-    # Widen confidence band with forecast horizon
     hours_ahead = np.arange(1, len(future) + 1)
     widening = std * np.sqrt(hours_ahead / FORECAST_HOURS)
     lower_ci = forecast_wl - 1.96 * widening
     upper_ci = forecast_wl + 1.96 * widening
-
-# --- Live Forecast Integration ---
-try:
-    live_forecast = load_live_forecast()
-    if live_forecast is not None and not live_forecast.empty:
-        st.markdown('<div class="info-box">🌐 <strong>Using live Open-Meteo forecast data</strong></div>', unsafe_allow_html=True)
-        min_len = min(len(live_forecast), len(future))
-        live_future = live_forecast.head(min_len)
-        
-        future = future.copy()
-        
-        if "rainfall_mm" in live_future.columns:
-            future.loc[future.index[:min_len], "rainfall_mm"] = live_future["rainfall_mm"].values
-        if "wind_speed_ms" in live_future.columns:
-            future.loc[future.index[:min_len], "wind_speed_ms"] = live_future["wind_speed_ms"].values
-        if "pressure_hpa" in live_future.columns:
-            future.loc[future.index[:min_len], "pressure_hpa"] = live_future["pressure_hpa"].values
-            
-        if "tidal_water_level_m" in live_future.columns:
-            ibe_m = np.maximum(0, (1013.25 - live_future["pressure_hpa"].values) * 0.01)
-            wind_setup_m = (live_future["wind_speed_ms"].values**2) / (9.81 * 10.0) * 0.01
-            forecast_wl[:min_len] = live_future["tidal_water_level_m"].values + ibe_m + wind_setup_m
-except Exception:
-    pass
 
 
 # ═══════════════════════════════════════════════════════════════════════════

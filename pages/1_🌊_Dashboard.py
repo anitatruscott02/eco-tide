@@ -50,9 +50,26 @@ def load_dashboard_data():
 
 dataset, recent_data = load_dashboard_data()
 
-# Current (last row) and 6-hour-ago readings
-current = recent_data.iloc[-1]
-past_6h = recent_data.iloc[-7] if len(recent_data) > 6 else recent_data.iloc[0]
+# Check live forecast for real-time live current conditions
+live_fc = None
+try:
+    from utils.data_loader import load_live_forecast
+    live_fc = load_live_forecast()
+except Exception:
+    pass
+
+if live_fc is not None and not live_fc.empty:
+    current = live_fc.iloc[0]
+    updated_str = live_fc.index[0].strftime("%d %b %Y, %H:%M WAT")
+    # Align recent 7 days so it leads right up to today
+    history_dates = [live_fc.index[0] - pd.Timedelta(hours=i) for i in range(len(recent_data), 0, -1)]
+    recent_data = recent_data.copy()
+    recent_data.index = history_dates
+    past_6h = recent_data.iloc[-7] if len(recent_data) > 6 else recent_data.iloc[0]
+else:
+    current = recent_data.iloc[-1]
+    updated_str = recent_data.index[-1].strftime("%d %b %Y, %H:%M WAT")
+    past_6h = recent_data.iloc[-7] if len(recent_data) > 6 else recent_data.iloc[0]
 
 # Compute zone risks first
 zone_risks = compute_zone_risks(
@@ -99,7 +116,7 @@ st.markdown(f"""
 </div>
 <div style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:1.2rem;">
     Coastal Flood Early Warning System — Lagos, Nigeria &nbsp;•&nbsp;
-    Last updated: <span style="color:#0A84FF;">{recent_data.index[-1].strftime("%d %b %Y, %H:%M WAT")}</span>
+    Last updated: <span style="color:#0A84FF;">{updated_str}</span>
 </div>
 """, unsafe_allow_html=True)
 

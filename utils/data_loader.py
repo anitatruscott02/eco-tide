@@ -14,29 +14,34 @@ from config.settings import PROCESSED_DATA_DIR, RAW_DATA_DIR, MODELS_DIR
 
 @st.cache_data(ttl=1800)  # Cache for 30 minutes
 def load_live_forecast():
-    """Load live forecast data, fetching fresh if stale."""
+    """Load live forecast data, fetching fresh from Open-Meteo if stale."""
     path = os.path.join(PROCESSED_DATA_DIR, "live_forecast.csv")
-    script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "fetch_live_forecast.py")
     
-    # Check if live_forecast.csv exists and is less than 2 hours old
-    needs_fetch = True
+    # Check if live_forecast.csv exists and is less than 1 hour old
     if os.path.exists(path):
-        file_age = time.time() - os.path.getmtime(path)
-        if file_age < 7200:  # 2 hours
-            needs_fetch = False
-            
-    if needs_fetch:
         try:
-            # Run fetch_live_forecast with UTF-8 encoding
-            subprocess.run([sys.executable, "-X", "utf8", script_path], check=True)
-        except Exception as e:
-            st.error(f"Failed to fetch live forecast: {e}")
-            if not os.path.exists(path):
-                return None
+            file_age = time.time() - os.path.getmtime(path)
+            if file_age < 3600:
+                df = pd.read_csv(path, index_col="datetime", parse_dates=True)
+                if not df.empty and df.index[-1] >= pd.Timestamp.now():
+                    return df
+        except Exception:
+            pass
+            
+    try:
+        from data.fetch_live_forecast import main as fetch_live
+        df = fetch_live()
+        if df is not None and not df.empty:
+            return df
+    except Exception as e:
+        print(f"Live forecast fetch notice: {e}")
                 
     if os.path.exists(path):
-        df = pd.read_csv(path, index_col="datetime", parse_dates=True)
-        return df
+        try:
+            df = pd.read_csv(path, index_col="datetime", parse_dates=True)
+            return df
+        except Exception:
+            return None
     return None
 
 @st.cache_data(ttl=3600)
